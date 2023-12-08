@@ -1,6 +1,6 @@
 
 
-        <div class="content-wrapper" style="background-color:white; color:black; margin-bottom:4px;">
+        <div class="content-wrapper" style="background-color:white; color:black !important; margin-bottom:4px;">
             <h2>Email Details</h2>
             <strong>From:</strong> {{ $email['from'] }}
             <br>
@@ -13,20 +13,19 @@
             <!-- <strong>Body:</strong> -->
             {!! $email['body'] !!} {{-- Use {!! !!} to output HTML --}}
 
-            <a href="javascript:void(0);" id="showReplyFormBtn" class="btn btn-primary">Reply</a>
-            <div id="replyFormContainer"></div>
+            <a href="{{route('emails.reply', $email['id'])}}"  class="btn btn-primary">Reply</a>
+            <!-- <div id="replyFormContainer"></div>
             
-        </div>
+        </div> -->
         
         <script>
     console.log('Test script is running.');
 </script>
       
 <script>
-      document.getElementById('showReplyFormBtn').addEventListener('click', function (event) {
+   document.getElementById('showReplyFormBtn').addEventListener('click', function (event) {
     event.preventDefault();
-    console.log('Button clicked!'); // Add this line for testing
-
+    
     fetch('{!! route("emails.reply", ["id" => $email["id"]]) !!}', {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -39,10 +38,13 @@
         return response.text();
     })
     .then(data => {
-        document.getElementById('replyFormContainer').innerHTML = data;
+        var replyFormContainer = document.getElementById('replyFormContainer');
+        replyFormContainer.innerHTML = data;
+        replyFormContainer.style.display = 'block'; // Ensure it's visible
     })
     .catch(error => console.error('Error fetching reply form:', error));
 });
 
 </script>
+
         

@@ -101,7 +101,7 @@ function getEmailName($from) {
 
 <script>
     
-    console.log('Email detail click event script is running.');
+    // console.log('Email detail click event script is running.');
 
     document.querySelectorAll('.email-item').forEach(function (item) {
         item.addEventListener('click', function () {

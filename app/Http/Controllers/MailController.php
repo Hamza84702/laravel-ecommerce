@@ -107,4 +107,51 @@ public function showReplyForm($id)
     }
 }
 
+// MailController.php
+
+public function sendReply(Request $request, $id)
+{
+    // Validate the request, add any validation rules you need
+    $request->validate([
+        'replyMessage' => 'required|string',
+    ]);
+
+    // Fetch the original email
+    $client = Client::account('default');
+    $client->connect();
+    $folder = $client->getFolder('INBOX');
+
+    try {
+        $originalEmail = $folder->query()->getMessage($id);
+
+        if (!$originalEmail) {
+            abort(404);
+        }
+
+        // Compose and send the reply
+        $replyMessage = $request->input('replyMessage');
+
+        // Create a new message using Swift Mailer
+        $newMessage = new \Swift_Message();
+        $newMessage->setSubject('Re: ' . $originalEmail->getSubject());
+        $newMessage->setTo($originalEmail->getFrom());
+        $newMessage->setBody($replyMessage);
+
+        // Send the new message
+        $mailer = new \Swift_Mailer(\Swift_SmtpTransport::newInstance());
+        $mailer->send($newMessage);
+
+        // Optionally, you can redirect back with a success message
+        return redirect()->back()->with('success', 'Reply sent successfully');
+    } catch (\Exception $e) {
+        // Log the exception for debugging
+        \Log::error("Exception: " . $e->getMessage());
+
+        // Handle the exception as needed
+        abort(500, "Error sending reply: " . $e->getMessage());
+    } finally {
+        $client->disconnect();
+    }
+
+}
 }
